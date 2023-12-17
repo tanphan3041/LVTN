@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Summarization App</title>
+</head>
+<body>
+    <h1>Text Summarization App</h1>
+
+    <div>
+        <label for="inputText">Enter text to summarize:</label>
+        <textarea id="inputText" rows="4" cols="50"></textarea>
+    </div>
+
+    <button onclick="summarize()">Summarize</button>
+
+    <div>
+        <h2>Summary:</h2>
+        <p id="summary"></p>
+    </div>
+
+    <div>
+        <h2>History:</h2>
+        <ul>
+            {% for item in history %}
+                <li><strong>Input:</strong> {{ item.input }}<br><strong>Summary:</strong> {{ item.summary }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script>
+        function summarize() {
+            var inputText = document.getElementById('inputText').value;
+
+            fetch('/summarize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: inputText }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('summary').innerText = data.summary;
+                // You can update the history display here if needed
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>

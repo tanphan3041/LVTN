@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Summarizer</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Text Summarizer</h1>
+
+    <div class="form-group">
+        <label for="inputText">Input Text:</label>
+        <textarea class="form-control" id="inputText" rows="5"></textarea>
+    </div>
+
+    <button class="btn btn-primary" onclick="summarize()">Summarize</button>
+
+    <div class="mt-4">
+        <h3>Summary:</h3>
+        <p id="summary"></p>
+    </div>
+
+    <div class="mt-4">
+        <h3>History:</h3>
+        <ul class="list-group" id="historyList">
+            <!-- History items will be dynamically added here -->
+        </ul>
+        <button class="btn btn-danger mt-3" onclick="clearHistory()">Clear History</button>
+    </div>
+</div>
+
+<script>
+    function summarize() {
+        var inputText = document.getElementById('inputText').value;
+
+        // Make a POST request to the Flask server
+        fetch('/summarize', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ text: inputText })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('summary').innerText = data.summary;
+
+            // Update the history list
+            var historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            data.history.forEach(entry => {
+                var listItem = document.createElement('li');
+                listItem.className = 'list-group-item';
+                listItem.innerHTML = `<strong>Input:</strong> ${entry.input}<br><strong>Summary:</strong> ${entry.summary}`;
+                historyList.appendChild(listItem);
+            });
+        });
+    }
+
+    function clearHistory() {
+        // Make a POST request to clear the history
+        fetch('/clear_history', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update the history list after clearing
+            var historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+        });
+    }
+</script>
+
+</body>
+</html>
+
